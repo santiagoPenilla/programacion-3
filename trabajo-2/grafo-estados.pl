@@ -1,14 +1,16 @@
-viaja_a(edmonton,saskatoon,12).
-viaja_a(saskatoon,winnipeg,20).
-viaja_a(saskatoon,calgary,9).
-viaja_a(vancouver,edmonton,16).
-viaja_a(vancouver,calgary,13).
-viaja_a(calgary,regina,14).
-viaja_a(regina,winnipeg,4).
-viaja_a(regina,saskatoon,7).
+% Hechos
+viajar_a(vancouver, edmonton, 16).
+viajar_a(vancouver, calgary, 13).
+viajar_a(edmonton, saskatoon, 12).
+viajar_a(calgary, edmonton, 14).
+viajar_a(calgary, regina, 14).
+viajar_a(saskatoon, calgary, 20).
+viajar_a(saskatoon, winnipeg, 9).
+viajar_a(regina, winnipeg, 7).
+viajar_a(regina, saskatoon, 7).
 
-%reglas
-conexion(X, Y, F) :- viaja_a(X, Y, F).
-conexion(X, Y, F) :- viaja_a(Y, X, F).
-tiene_aristas(X, Y) :- viaja_a(X, Y, _);viaja_a(Y, X, _).
-viaje_x_a_z(X,Y,Z):- 
+% Reglas
+conexion(X, Y, C) :- viajar_a(X, Y, C).
+conexion(X, Y, C) :- viajar_a(Y, X, C).
+
+tiene_aristas(Sitio) :- viajar_a(Sitio, _, _); viajar_a(_, Sitio, _).
