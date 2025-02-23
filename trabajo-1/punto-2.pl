@@ -1,12 +1,12 @@
 % Hechos
-americano(colonel_west).
+americano(coronel_west).
 enemigo(corea_sur, eeuu).
 
 misil(m1).
 
 posee(corea_sur, m1).
 
-vendio(colonel_west, m1, corea_sur).
+vendio(coronel_west, m1, corea_sur).
 
 % Reglas
 arma(X) :- misil(X).
