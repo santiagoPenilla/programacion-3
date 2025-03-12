@@ -1,0 +1,1 @@
+:-conexion(saskatoon, vancouver, _).
