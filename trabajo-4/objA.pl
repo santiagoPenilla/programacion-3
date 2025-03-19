@@ -1,1 +1,1 @@
-:-es_madre(X).
+:-es_madre(patricia).

@@ -1,1 +1,1 @@
-:-hermana_de(X, Y).
+:-hermana_de(ana, patricia).
