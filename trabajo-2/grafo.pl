@@ -14,7 +14,12 @@ conexion(X, Y, F) :- viaja_a(Y, X, F).
 
 tiene_aristas(X, Y) :- viaja_a(X, Y, _); viaja_a(Y, X, _).
 
-viaje_x_a_z(X, Y, Z, Distancia) :- 
-    viaja_a(X, Y, C1),
-    viaja_a(Y, Z, C2),
+viaje(X, Y, Distancia) :- 
+    conexion(X, Y, Distancia).
+
+viaje(X, Y, Distancia) :- 
+    conexion(X, Z, C1),  
+    viaje(Z, Y, C2),  
     Distancia is C1 + C2.
+
+
