@@ -21,3 +21,5 @@ viaje(X, Y, Distancia) :-
     conexion(X, Z, C1),  
     viaje(Z, Y, C2),  
     Distancia is C1 + C2.
+
+    
