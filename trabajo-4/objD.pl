@@ -1,0 +1,1 @@
+:-hermana_de(X, Y).
