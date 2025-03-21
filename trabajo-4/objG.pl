@@ -1,1 +1,1 @@
-:-tia(X, Y).
+:-tia(clara, jose).
