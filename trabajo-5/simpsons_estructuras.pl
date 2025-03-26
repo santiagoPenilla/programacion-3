@@ -14,15 +14,14 @@ madre_de(selma, ling).
 
 
 abuelo_de(X, Y) :- 
-    hombre(Z), member(X,Z),
-    padre_de(X,Hijos),member(Padres,Hijos),
-    padre_de(Padres,Nietos),member(Y,Nietos).
-
+    hombre(X), 
+    (padre_de(X, Z) ; madre_de(X, Z)), 
+    (padre_de(Z, Y) ; madre_de(Z, Y)).
 
 abuela_de(X, Y) :- 
-    mujer(Z), member(X,Z),
-    madre_de(X,Hijos),member(Padres,Hijos),
-    (madre_de(Padres,Nietos);padre_de(Padres,Nietos)),member(Y,Nietos).
+    mujer(X), 
+    madre_de(X, Z), 
+    (padre_de(Z, Y) ; madre_de(Z, Y)).
 
 hermana_de(X, Y) :- 
     mujer(X), 
