@@ -34,7 +34,15 @@ hermano_de(X,Y) :-
     padre_de(_,H),member(X,H),member(Y,H);
     madre_de(_,H1),member(X,H1),member(Y,H1).
 	
+tio_de(X, Y) :- 
+    hombre(L), member(X, L),       
+    padre_de(P, Hijos),           
+    member(Hermano, Hijos),        
+    (padre_de(Hermano, Nietos) ; madre_de(Hermano, Nietos)), 
+    member(Y, Nietos).   
 
-tio_de(X, Y) :- hombre(X), hermano_de(X, Z), (padre_de(Z, Y) ; madre_de(Z, Y)).
-tia_de(X, Y) :- mujer(X), hermana_de(X, Z), (padre_de(Z, Y) ; madre_de(Z, Y)).
-
+tia_de(X, Y) :- 
+    mujer(L), member(X, L),        
+    padre_de(P, Hijos),            
+    member(Hermana, Hijos),         
+    (padre_de(Hermana, Nietos) ; madre_de(Hermana, Nietos)), 
