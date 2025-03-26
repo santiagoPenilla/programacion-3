@@ -25,15 +25,16 @@ abuela_de(X, Y) :-
     (madre_de(Padres,Nietos);padre_de(Padres,Nietos)),member(Y,Nietos).
 
 hermana_de(X, Y) :- 
-    mujer(X), 
-    ((padre_de(P, X), padre_de(P, Y)) ; 
-    (madre_de(M, X), madre_de(M, Y))).
+    mujer(F),member(X,F),
+    padre_de(_,H),member(X,H),member(Y,H);
+    madre_de(_,H1),member(X,H1),member(Y,H1). 
 
 hermano_de(X,Y) :- 
     hombre(L),member(X,L),
-    padre_de(_,H),member(X,H),member(Y,H),
+    padre_de(_,H),member(X,H),member(Y,H);
     madre_de(_,H1),member(X,H1),member(Y,H1).
 	
 
 tio_de(X, Y) :- hombre(X), hermano_de(X, Z), (padre_de(Z, Y) ; madre_de(Z, Y)).
 tia_de(X, Y) :- mujer(X), hermana_de(X, Z), (padre_de(Z, Y) ; madre_de(Z, Y)).
+
