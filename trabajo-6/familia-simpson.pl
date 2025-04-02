@@ -32,3 +32,21 @@ hermana_de(X, Y) :-
     ((padre_de(P, Hijos), member(X, Hijos), member(Y, Hijos));
      (madre_de(M, Hijos), member(X, Hijos), member(Y, Hijos))),
     X \= Y.
+
+hermano_de(X, Y) :- 
+    es_hombre(X), 
+    ((padre_de(P, Hijos), member(X, Hijos), member(Y, Hijos));
+     (madre_de(M, Hijos), member(X, Hijos), member(Y, Hijos))),
+    X \= Y.
+
+tio_de(X, Y) :- 
+    es_hombre(X), 
+    hermano_de(X, Z), 
+    ((padre_de(Z, Hijos), member(Y, Hijos));
+     (madre_de(Z, Hijos), member(Y, Hijos))).
+
+tia_de(X, Y) :- 
+    es_mujer(X), 
+    hermana_de(X, Z), 
+    ((padre_de(Z, Hijos), member(Y, Hijos));
+     (madre_de(Z, Hijos), member(Y, Hijos))).

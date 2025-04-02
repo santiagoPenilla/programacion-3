@@ -11,8 +11,6 @@ madre_de(jacqueline,[marge,selma,patty]).
 madre_de(marge, [lisa,bart,maggie]).
 madre_de(selma, ling).
 
-
-
 abuelo_de(X, Y) :- 
     hombre(Z), member(X,Z),
     padre_de(X,Hijos),member(Padres,Hijos),
