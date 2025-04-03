@@ -14,7 +14,8 @@ madre_de(X,Y):-
 padre_de(X,Y):- 
     member((X,Y),
     [(hombre(homero), hombre(bart)), (hombre(homero), mujer(lisa)), (hombre(homero), mujer(maggie)), 
-     (hombre(abraham), hombre(herbert)), (hombre(abraham), hombre(homero))]).
+     (hombre(abraham), hombre(herbert)), (hombre(abraham), hombre(homero)),
+     (hombre(clancy), mujer(marge)), (hombre(clancy), mujer(patty)), (hombre(clancy), mujer(selma))]).
 
 abuela_de(X, Z) :- madre_de(X, Y), (padre_de(Y, Z) ; madre_de(Y, Z)).
 abuelo_de(X, Z) :- padre_de(X, Y), (padre_de(Y, Z) ; madre_de(Y, Z)).
