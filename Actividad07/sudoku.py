@@ -12,7 +12,8 @@ VarDoms={key:Dom.copy() for key in strVarkeys} # Creamos un diccionario donde ca
 # Directorio del tablero a resolver
 #boardname="SD2MFXKY-facil"
 #boardname = "SD3CJFOG-moderado" 
-boardname= "SD8RXDKO-extremo"
+#boardname= "SD8RXDKO-extremo"
+boardname = "SD9LHPLL-imposible"
 
 with open(boardname, "r") as archivo:
     for clave in VarDoms:
