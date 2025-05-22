@@ -202,7 +202,7 @@ def swordfish(VarDoms, rows):
 def forward_checking_search(VarDoms, Constraints):
     vars_list = list(VarDoms.keys())
 
-    def backtrack(i):
+    def recursive_fc_solver(i):
         if i == len(vars_list):
             return True
 
@@ -224,7 +224,7 @@ def forward_checking_search(VarDoms, Constraints):
                         break
 
             if not failed:
-                if backtrack(i + 1):
+                if recursive_fc_solver(i + 1):
                     return True
 
             for v in saved_domains:
@@ -232,7 +232,7 @@ def forward_checking_search(VarDoms, Constraints):
 
         return False
 
-    return backtrack(0)
+    return recursive_fc_solver(0)
 
 cols = defColsConstraints(Idcols, Dom)
 rows = defRowsConstraints(Idcols, Dom)
