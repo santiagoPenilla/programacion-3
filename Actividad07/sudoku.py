@@ -9,7 +9,9 @@ strVarkeys=[f"{key[1]}{key[0]}" for key in Varkeys] # Convertimos las combinacio
 
 VarDoms={key:Dom.copy() for key in strVarkeys} # Creamos un diccionario donde cada variable tiene como dominio el conjunto de valores del sudoku
 
-boardname="SD2MFXKY-facil" # Directorio del tablero a resolver
+# Directorio del tablero a resolver
+boardname="SD2MFXKY-facil" 
+#boardname= "SD8RXDKO-extremo"
 
 with open(boardname, "r") as archivo:
     for clave in VarDoms:
@@ -84,38 +86,152 @@ def ConsistenceDomsEqual2(Constraints,VarDoms):
                     anyChange=True
   return anyChange
 
-def DomsEqual(Vars,constraint):
-  anyChange=False
-  varsEquals={}
-  for var1 in constraint:
-    if len(Vars[var1])>1:
-      for var2 in constraint:
-        if not(var1==var2):
-          if (Vars[var1]==Vars[var2]):
-            if tuple(Vars[var1]) in varsEquals:
-              Set_aux=set(varsEquals[tuple(Vars[var1])].copy())
-              Set_aux.add(var1)
-              Set_aux.add(var2)
-              varsEquals[tuple(Vars[var1])]=list(Set_aux)
-            else:
-              varsEquals[tuple(Vars[var1])]=[var1,var2]
-  for domVar in varsEquals:
-    if len(domVar)==len(varsEquals[domVar]):
-      for var in constraint:
-        if not(var in varsEquals[domVar]):
-          for value in domVar:
-            oldValue=Vars[var].copy()
-            Vars[var].discard(value)
-            if not(oldValue==Vars[var]):
-              anyChange=True
-  return anyChange
+# Nuevas restricciones
+def hidden_single(units, VarDoms):
+    changed = False
+    for unit in units:
+        for val in Dom:
+            possibles = [v for v in unit if val in VarDoms[v]]
+            if len(possibles) == 1:
+                var = possibles[0]
+                if VarDoms[var] != {val}:
+                    VarDoms[var] = {val}
+                    changed = True
+    return changed
 
+def naked_subsets(units, VarDoms, size):
+    changed = False
+    for unit in units:
+        candidates = [v for v in unit if 1 < len(VarDoms[v]) <= size]
+        for subset in it.combinations(candidates, size):
+            values = set()
+            for var in subset:
+                values |= VarDoms[var]
+            if len(values) == size:
+                for var in unit:
+                    if var not in subset:
+                        before = VarDoms[var].copy()
+                        VarDoms[var] -= values
+                        if VarDoms[var] != before:
+                            changed = True
+    return changed
+
+def hidden_subsets(units, VarDoms, size):
+    changed = False
+    for unit in units:
+        for values in it.combinations(Dom, size):
+            values = set(values)
+            related = [v for v in unit if VarDoms[v] <= values]
+            if len(related) == size:
+                for var in related:
+                    before = VarDoms[var].copy()
+                    VarDoms[var] &= values
+                    if VarDoms[var] != before:
+                        changed = True
+    return changed
+
+def pointing(VarDoms, rows, cols, boxes):
+    changed = False
+    for box in boxes:
+        for val in Dom:
+            vars_with_val = [v for v in box if val in VarDoms[v]]
+            if 1 < len(vars_with_val) <= 3:
+                row_ids = {v[1] for v in vars_with_val}
+                col_ids = {v[0] for v in vars_with_val}
+
+                if len(row_ids) == 1:
+                    row = int(row_ids.pop()) - 1
+                    for v in rows[row]:
+                        if v not in box and val in VarDoms[v]:
+                            VarDoms[v].discard(val)
+                            changed = True
+
+                if len(col_ids) == 1:
+                    col = Idcols.index(col_ids.pop())
+                    for v in cols[col]:
+                        if v not in box and val in VarDoms[v]:
+                            VarDoms[v].discard(val)
+                            changed = True
+    return changed
+
+def x_wing(VarDoms, rows):
+    changed = False
+    for val in Dom:
+        row_map = {}
+        for r in range(9):
+            row_map[r] = [v for v in rows[r] if val in VarDoms[v]]
+        valid = [(r, vs) for r, vs in row_map.items() if len(vs) == 2]
+
+        for (r1, pair1), (r2, pair2) in it.combinations(valid, 2):
+            if pair1 == pair2:
+                c1 = Idcols.index(pair1[0][0])
+                c2 = Idcols.index(pair1[1][0])
+                for r in set(range(9)) - {r1, r2}:
+                    for c in [c1, c2]:
+                        v = f"{Idcols[c]}{r+1}"
+                        if val in VarDoms[v]:
+                            VarDoms[v].discard(val)
+                            changed = True
+    return changed
+
+def swordfish(VarDoms, rows):
+    changed = False
+    for val in Dom:
+        row_map = {}
+        for r in range(9):
+            vars_with_val = [v for v in rows[r] if val in VarDoms[v]]
+            if 2 <= len(vars_with_val) <= 3:
+                row_map[r] = vars_with_val
+
+        for triple in it.combinations(row_map.items(), 3):
+            cols_in_triple = [set(Idcols.index(v[0]) for v in vs) for _, vs in triple]
+            common = set.intersection(cols_in_triple[0], cols_in_triple[1], cols_in_triple[2])
+
+            if len(common) == 3:
+                rows_used = {r for r, _ in triple}
+                for r in set(range(9)) - rows_used:
+                    for c in common:
+                        v = f"{Idcols[c]}{r+1}"
+                        if val in VarDoms[v]:
+                            VarDoms[v].discard(val)
+                            changed = True
+    return changed
+
+
+cols = defColsConstraints(Idcols, Dom)
+rows = defRowsConstraints(Idcols, Dom)
+boxes = defBoxesContraints(Idcols, Dom)
+
+# bucle de propagación
 anyChange = True
-iteration = 1
 while anyChange:
-  iteration += 1
-  anyChange = ConsistenceDifference(Constraints,VarDoms)
-  anyChange |= ConsistenceDomsEqual2(Constraints,VarDoms)
+    anyChange = False
+    anyChange |= ConsistenceDifference(Constraints, VarDoms)
+    anyChange |= ConsistenceDomsEqual2(Constraints, VarDoms)
+    anyChange |= hidden_single(Constraints, VarDoms)
+    anyChange |= naked_subsets(Constraints, VarDoms, 2)
+    anyChange |= naked_subsets(Constraints, VarDoms, 3)
+    anyChange |= hidden_subsets(Constraints, VarDoms, 2)
+    anyChange |= hidden_subsets(Constraints, VarDoms, 3)
+    anyChange |= pointing(VarDoms, rows, cols, boxes)
+    anyChange |= x_wing(VarDoms, rows)
+    anyChange |= swordfish(VarDoms, rows)
 
-for var in VarDoms:
-  print(f"{var}: {VarDoms[var]}")
+# Imprimir el tablero con formato
+def print_sudoku(VarDoms):
+    for i in range(1, 10):
+        fila = ""
+        for j in "ABCDEFGHI":
+            var = f"{j}{i}"
+            val = VarDoms[var]
+            if len(val) == 1:
+                fila += str(next(iter(val))) + " "
+            else:
+                fila += ". "
+            if j in "C" or j == "F":
+                fila += "| "
+        print(fila.strip())
+        if i in [3, 6]:
+            print("-" * 21)
+
+print_sudoku(VarDoms)
