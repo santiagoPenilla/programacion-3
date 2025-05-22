@@ -10,8 +10,9 @@ strVarkeys=[f"{key[1]}{key[0]}" for key in Varkeys] # Convertimos las combinacio
 VarDoms={key:Dom.copy() for key in strVarkeys} # Creamos un diccionario donde cada variable tiene como dominio el conjunto de valores del sudoku
 
 # Directorio del tablero a resolver
-boardname="SD2MFXKY-facil" 
-#boardname= "SD8RXDKO-extremo"
+#boardname="SD2MFXKY-facil"
+#boardname = "SD3CJFOG-moderado" 
+boardname= "SD8RXDKO-extremo"
 
 with open(boardname, "r") as archivo:
     for clave in VarDoms:
@@ -55,7 +56,6 @@ def defBoxesContraints(IdCols,Dom):
 # Definimos las restricciones
 Constraints= defColsConstraints(Idcols,Dom) + defRowsConstraints(Idcols,Dom) + defBoxesContraints(Idcols,Dom)
 
-# Definimos las restricciones de consistencia
 def ConsistenceDifference(Constraints,VarDoms):
   anyChange = False
   for constraint in Constraints:
@@ -197,6 +197,41 @@ def swordfish(VarDoms, rows):
                             changed = True
     return changed
 
+# Implementación de forward checking
+def forward_checking_search(VarDoms, Constraints):
+    vars_list = list(VarDoms.keys())
+
+    def backtrack(i):
+        if i == len(vars_list):
+            return True
+
+        xi = vars_list[i]
+        for ai in list(VarDoms[xi]):
+            saved_domains = {v: VarDoms[v].copy() for v in VarDoms}
+            VarDoms[xi] = {ai}
+
+            failed = False
+            for constraint in Constraints:
+                if xi in constraint:
+                    for xj in constraint:
+                        if xj != xi:
+                            VarDoms[xj].discard(ai)
+                            if not VarDoms[xj]:
+                                failed = True
+                                break
+                    if failed:
+                        break
+
+            if not failed:
+                if backtrack(i + 1):
+                    return True
+
+            for v in saved_domains:
+                VarDoms[v] = saved_domains[v]
+
+        return False
+
+    return backtrack(0)
 
 cols = defColsConstraints(Idcols, Dom)
 rows = defRowsConstraints(Idcols, Dom)
@@ -234,4 +269,7 @@ def print_sudoku(VarDoms):
         if i in [3, 6]:
             print("-" * 21)
 
-print_sudoku(VarDoms)
+if forward_checking_search(VarDoms, Constraints):
+    print_sudoku(VarDoms)
+else:
+    print("No existe ninguna solución para este tablero.")
