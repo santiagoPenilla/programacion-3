@@ -1,6 +1,16 @@
 import re
 
 colum_labels = "ABCDEFGHI"
+initial_domain = { i for i in range(1, 10) } 
+
+def get_doms(kakuro):
+    domains = {}
+    for constraints in kakuro['constraints'].values():
+        for cells, _ in constraints:
+            for cell in cells:
+                if cell not in domains:
+                    domains[cell] = initial_domain.copy()
+    return domains
 
 def cels_range(start, end):
     cels = []
@@ -48,5 +58,11 @@ def read_kakuro(file):
             constraints[cell] = constraint
     return constraints
     
-file = "KK2BIMEG.txt"
-print(read_kakuro(file))
+def make_kakuro(file):
+    kakuro = {}
+    kakuro["constraints"] = read_kakuro(file)
+    kakuro["domains"] = get_doms(kakuro)
+    return kakuro
+
+file = "kakuro/KK2BIMEG.txt"
+print(make_kakuro(file))
