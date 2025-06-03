@@ -1,4 +1,5 @@
 import re
+from table import BY_SUM
 
 colum_labels = "ABCDEFGHI"
 initial_domain = { i for i in range(1, 10) } 
@@ -57,6 +58,20 @@ def read_kakuro(file):
                 constraint.append((cels_range(start, end), int(right_sum)))
             constraints[cell] = constraint
     return constraints
+
+def doms_rule(kakuro):
+    for key, constraint in kakuro["constraints"].items():
+        for cells, total in constraint:
+            combinations = BY_SUM[total][len(cells)]
+            dominio = set()
+            if len(combinations) == 1:
+                unique = combinations[0]
+                dominio = {int(d) for d in unique}
+            else:
+                for combination in combinations:
+                    dominio |= {int(d) for d in combination}
+            for cell in cells:
+                kakuro["domains"][cell] &= dominio
     
 def make_kakuro(file):
     kakuro = {}
@@ -65,4 +80,8 @@ def make_kakuro(file):
     return kakuro
 
 file = "kakuro/KK2BIMEG.txt"
-print(make_kakuro(file))
+kakuro = make_kakuro(file)
+doms_rule(kakuro)
+
+for cell, domain in kakuro["domains"].items():
+    print(cell, domain)
