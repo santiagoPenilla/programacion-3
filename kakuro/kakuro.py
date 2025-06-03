@@ -72,7 +72,50 @@ def doms_rule(kakuro):
                     dominio |= {int(d) for d in combination}
             for cell in cells:
                 kakuro["domains"][cell] &= dominio
-    
+
+def propagate_uniques(kakuro):
+    changed = False
+    singles = {}
+    for cell, domain in kakuro["domains"].items():
+        if len(domain) == 1:
+            singles[cell] = next(iter(domain))
+
+    for clue_cell, constraint in kakuro["constraints"].items():
+        for cells, _ in constraint:
+            for cell,val in singles.items():
+                if cell in cells:
+                    for other in cells:
+                        if other!=cell and val in kakuro["domains"][other]:
+                            kakuro["domains"][other].remove(val)
+                            changed = True
+    return changed
+
+
+def remaind_value(kakuro):
+    changed = False
+    for n, constraints in kakuro["constraints"].items():
+        for cells, total in constraints:
+            singletons = [c for c in cells if len(kakuro["domains"][c]) == 1]
+            others = [c for c in cells if len(kakuro["domains"][c]) > 1]
+
+            if len(others) == 1 and len(singletons) == len(cells) - 1:
+                rem_cell = others[0]
+                assigned_sum = sum(next(iter(kakuro["domains"][c])) for c in singletons)
+                missing = total - assigned_sum
+
+                if missing in kakuro["domains"][rem_cell] and kakuro["domains"][rem_cell] != {missing}:
+                    kakuro["domains"][rem_cell] = {missing}
+                    changed = True
+
+    return changed
+
+def propagate_all(kakuro):
+    changed = True
+    while changed:
+        changed = False
+        changed |= propagate_uniques(kakuro)
+        changed |= remaind_value(kakuro)
+
 def make_kakuro(file):
     kakuro = {}
     kakuro["constraints"] = read_kakuro(file)
@@ -82,6 +125,8 @@ def make_kakuro(file):
 file = "kakuro/KK2BIMEG.txt"
 kakuro = make_kakuro(file)
 doms_rule(kakuro)
+propagate_all(kakuro)
+
 
 for cell, domain in kakuro["domains"].items():
     print(cell, domain)
