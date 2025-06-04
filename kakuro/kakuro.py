@@ -109,12 +109,58 @@ def remaind_value(kakuro):
 
     return changed
 
+def reduce_by_Sum(kakuro):
+    changed = False
+    for key, constraint in kakuro["constraints"].items():
+        for cells, total in constraint:
+            combinations = BY_SUM[total][len(cells)]
+            parsed = [{int(d) for d in combo} for combo in combinations]
+
+            valid = [comb for comb in parsed
+                     if all(any(v in kakuro["domains"][cell] for cell in cells) for v in comb)]
+
+            if len(valid) < len(parsed):
+                for cell in cells:
+                    old_dom = kakuro["domains"][cell]
+                    new_dom = set()
+                    for comb in valid:
+                        new_dom |= comb & old_dom
+                    if new_dom != old_dom:
+                        kakuro["domains"][cell] = new_dom
+                        changed = True
+    return changed
+
+from itertools import combinations
+
+def reduce_naked_tuples(kakuro):
+    changed = False
+    doms = kakuro["domains"]
+
+    for constraint in kakuro["constraints"].values():
+        for cells, n in constraint:
+            n_cells = len(cells)
+            for k in range(2, n_cells):
+                cand = [c for c in cells if 2 <= len(doms[c]) <= k]
+                for combo in combinations(cand, k):
+                    union_vals = set()
+                    for c in combo:
+                        union_vals.update(doms[c])
+                    if len(union_vals) == k:
+                        for other in cells:
+                            if other not in combo:
+                                if doms[other] & union_vals:
+                                    doms[other] -= union_vals
+                                    changed = True
+    return changed
+
 def propagate_all(kakuro):
     changed = True
     while changed:
         changed = False
         changed |= propagate_uniques(kakuro)
         changed |= remaind_value(kakuro)
+        changed |= reduce_by_Sum(kakuro)
+        changed |= reduce_naked_tuples(kakuro)
 
 def make_kakuro(file):
     kakuro = {}
@@ -129,4 +175,4 @@ propagate_all(kakuro)
 
 
 for cell, domain in kakuro["domains"].items():
-    print(cell, domain)
+    print(cell, domain)
