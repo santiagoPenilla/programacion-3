@@ -168,11 +168,11 @@ def make_kakuro(file):
     kakuro["domains"] = get_doms(kakuro)
     return kakuro
 
-file = "kakuro/KK2BIMEG.txt"
+file = "kakuro/KK5EUBHC.txt"
 kakuro = make_kakuro(file)
 doms_rule(kakuro)
 propagate_all(kakuro)
 
 
 for cell, domain in kakuro["domains"].items():
-    print(cell, domain)
+    print(cell,domain)
