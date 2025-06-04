@@ -168,11 +168,59 @@ def make_kakuro(file):
     kakuro["domains"] = get_doms(kakuro)
     return kakuro
 
-file = "kakuro/KK5EUBHC.txt"
-kakuro = make_kakuro(file)
-doms_rule(kakuro)
-propagate_all(kakuro)
+def is_solved(kakuro):
+    return all(len(dom) == 1 for dom in kakuro["domains"].values())
 
 
-for cell, domain in kakuro["domains"].items():
-    print(cell,domain)
+def select_unassigned_cell(kakuro):
+    min_size = 10
+    chosen = None
+    for cell, dom in kakuro["domains"].items():
+        if 1 < len(dom) < min_size:
+            min_size = len(dom)
+            chosen = cell
+    return chosen
+
+
+def backtrack(kakuro):
+    if is_solved(kakuro):
+        return True
+
+    cell = select_unassigned_cell(kakuro)
+    if cell is None:
+        return False
+
+    domain_snapshot = kakuro["domains"][cell].copy()
+
+    for val in list(domain_snapshot):
+        domains_backup = { cell: dom.copy() 
+                   for cell, dom in kakuro["domains"].items() }
+
+        kakuro["domains"][cell] = {val}
+
+        propagate_all(kakuro)
+
+        contradiction = any(len(dom) == 0 for dom in kakuro["domains"].values())
+        if not contradiction:
+            if backtrack(kakuro):
+                return True
+
+        kakuro["domains"] = domains_backup
+
+    return False
+
+def solve_kakuro(file):
+    kakuro = make_kakuro(file)
+    doms_rule(kakuro)
+    propagate_all(kakuro)
+
+    if backtrack(kakuro):
+        for cell, domain in kakuro["domains"].items():
+            print(cell, ":", domain)
+    else:
+        print("No existe solución.")
+    
+#file = "kakuro/KK5EUBHC.txt"
+#file = "kakuro/KK5DBEKZ.txt"
+file = "kakuro/KK5CWQXR.txt"
+solve_kakuro(file)
