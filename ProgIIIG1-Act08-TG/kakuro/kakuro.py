@@ -221,11 +221,12 @@ def solve_kakuro(file):
         print("No existe solución.")
 
 
-"""Descomentar el tablero de kakuro que se desee resolver"""
+"""Descomentar el tablero de kakuro que se desee resolver
+    IMPORTANTE: CAMBIAR LA RUTA DE SER NECESARIO"""
 
-#file = "kakuro/ProgIIIG1-Act08-KK2BIMEG-Board.txt"
+#file = "ProgIIIG1-Act08-TG/kakuro/ProgIIIG1-Act08-KK2BIMEG-Board.txt"
     
-#file = "kakuro/ProgIIIG1-Act08-KK5EUBHC-Board.txt"
-#file = "kakuro/ProgIIIG1-Act08-KK5DBEKZ-Board.txt"
-file = "kakuro/ProgIIIG1-Act08-KK5CWQXR-Board.txt"
+#file = "ProgIIIG1-Act08-TG/kakuro/ProgIIIG1-Act08-KK5EUBHC-Board.txt"
+#file = "ProgIIIG1-Act08-TG/kakuro/ProgIIIG1-Act08-KK5DBEKZ-Board.txt"
+file = "ProgIIIG1-Act08-TG/kakuro/ProgIIIG1-Act08-KK5CWQXR-Board.txt"
 solve_kakuro(file)
