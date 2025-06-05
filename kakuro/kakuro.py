@@ -216,11 +216,16 @@ def solve_kakuro(file):
 
     if backtrack(kakuro):
         for cell, domain in kakuro["domains"].items():
-            print(cell, ":", domain)
+            print(cell, "=", domain)
     else:
         print("No existe solución.")
+
+
+"""Descomentar el tablero de kakuro que se desee resolver"""
+
+#file = "kakuro/ProgIIIG1-Act08-KK2BIMEG-Board.txt"
     
-#file = "kakuro/KK5EUBHC.txt"
-#file = "kakuro/KK5DBEKZ.txt"
-file = "kakuro/KK5CWQXR.txt"
+#file = "kakuro/ProgIIIG1-Act08-KK5EUBHC-Board.txt"
+#file = "kakuro/ProgIIIG1-Act08-KK5DBEKZ-Board.txt"
+file = "kakuro/ProgIIIG1-Act08-KK5CWQXR-Board.txt"
 solve_kakuro(file)
